@@ -1,8 +1,6 @@
-import PostitImage from "@/assets/images/post_it.png";
-import { FlatList, Image, StyleSheet, TouchableOpacity } from "react-native";
-
 import PostComponent from "@/components/PostComponent";
-import { Text, View } from "@/components/Themed";
+import { View } from "@/components/Themed";
+import EmptyPostState from "@/components/ui/EmptyPostState";
 import ErrorComponent from "@/components/ui/ErrorComponent";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import { db } from "@/firebaseconfig";
@@ -10,6 +8,7 @@ import { Post } from "@/types/post";
 import { router } from "expo-router";
 import { collection, onSnapshot, orderBy, query } from "firebase/firestore";
 import { useEffect, useState } from "react";
+import { FlatList, StyleSheet } from "react-native";
 
 export default function TabOneScreen() {
     const [posts, setPosts] = useState<Post[]>([]);
@@ -54,22 +53,6 @@ export default function TabOneScreen() {
         setRetryCount((prev) => prev + 1);
     };
 
-    const renderEmptyState = () => (
-        <View style={styles.emptyContainer}>
-            <Image source={PostitImage} style={styles.image} />
-            <Text style={styles.title}>
-                It looks like everyone here is shy,
-            </Text>
-            <Text style={styles.small}>You better don't be</Text>
-            <TouchableOpacity
-                style={styles.createButton}
-                onPress={handleCreatePost}
-            >
-                <Text style={styles.buttonText}>Create First Post</Text>
-            </TouchableOpacity>
-        </View>
-    );
-
     if (loading) {
         return <LoadingSpinner />;
     }
@@ -87,7 +70,9 @@ export default function TabOneScreen() {
                 contentContainerStyle={
                     posts.length === 0 ? styles.emptyList : styles.listContent
                 }
-                ListEmptyComponent={renderEmptyState}
+                ListEmptyComponent={
+                    <EmptyPostState handleCreatePost={handleCreatePost} />
+                }
                 showsVerticalScrollIndicator={false}
             />
         </View>
@@ -106,54 +91,10 @@ const styles = StyleSheet.create({
         justifyContent: "center",
         padding: 20,
     },
-    emptyContainer: {
-        flex: 1,
-        alignItems: "center",
-        justifyContent: "center",
-        padding: 20,
-    },
     emptyList: {
         flexGrow: 1,
     },
     listContent: {
         padding: 16,
-    },
-    image: {
-        width: 100,
-        height: 100,
-        marginBottom: 20,
-        borderRadius: 10,
-    },
-    title: {
-        fontSize: 18,
-        fontWeight: "bold",
-        color: "#726f6f",
-        marginBottom: 8,
-        textAlign: "center",
-    },
-    small: {
-        fontSize: 16,
-        color: "#2f95dc",
-        fontWeight: "700",
-        marginBottom: 20,
-    },
-
-    createButton: {
-        backgroundColor: "#2f95dc",
-        paddingHorizontal: 24,
-        paddingVertical: 12,
-        borderRadius: 8,
-        marginTop: 8,
-    },
-    retryButton: {
-        backgroundColor: "#2f95dc",
-        paddingHorizontal: 24,
-        paddingVertical: 12,
-        borderRadius: 8,
-    },
-    buttonText: {
-        color: "#fff",
-        fontSize: 16,
-        fontWeight: "600",
     },
 });

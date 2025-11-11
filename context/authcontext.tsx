@@ -7,6 +7,7 @@ import {
     useEffect,
     useState,
 } from "react";
+import { Alert } from "react-native";
 
 // Define types for user and context
 export interface User {
@@ -112,6 +113,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
     const logOut = async (): Promise<void> => {
         await authService.logOut();
+        Alert.alert("log out successful");
     };
 
     return (
