@@ -7,27 +7,28 @@ import {
     useEffect,
     useState,
 } from "react";
-import postService from "@/services/postService";
 
 // Define types for user and context
 interface User {
     uid: string;
     email: string | null;
-    displayName?: string | null;
-    photoURL?: string | null;
+    displayName: string;
 }
 
 interface AuthResponse {
     success: boolean;
     error?: string;
-    user?: User;
 }
 
 interface AuthContextType {
     user: User | null;
     loading: boolean;
     login: (email: string, password: string) => Promise<AuthResponse>;
-    signup: (email: string, password: string) => Promise<AuthResponse>;
+    signup: (
+        email: string,
+        password: string,
+        displayName: string
+    ) => Promise<AuthResponse>;
     logOut: () => Promise<void>;
 }
 
@@ -82,9 +83,10 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
     const signup = async (
         email: string,
-        password: string
+        password: string,
+        displayName: string
     ): Promise<AuthResponse> => {
-        const response = await authService.signup(email, password);
+        const response = await authService.signup(email, password, displayName);
 
         if (response?.error) {
             return response;

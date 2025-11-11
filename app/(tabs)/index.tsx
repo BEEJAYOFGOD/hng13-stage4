@@ -80,11 +80,6 @@ export default function TabOneScreen() {
                 </Text>
             </View>
             <Text style={styles.postContent}>{item.content}</Text>
-            {/* {item.likes !== undefined && (
-                <View style={styles.postFooter}>
-                    <Text style={styles.likes}>❤️ {item.likes}</Text>
-                </View>
-            )} */}
         </TouchableOpacity>
     );
 
@@ -131,6 +126,7 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: "#f5f5f5",
+        paddingTop: 25,
     },
     centerContainer: {
         flex: 1,

@@ -31,15 +31,13 @@ function handleFirebaseError(err: unknown): string {
 
 const authService = {
     // Register a user
-    async signup(email: string, password: string) {
+    async signup(email: string, password: string, displayName: string) {
         try {
             const userCredential = await createUserWithEmailAndPassword(
                 auth,
                 email,
                 password
             );
-
-            const displayName = email.slice(0, 5);
 
             const { uid } = userCredential.user;
 

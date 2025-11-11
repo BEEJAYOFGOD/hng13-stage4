@@ -36,10 +36,9 @@ export default function Create() {
 
             await postService.createPost(
                 user.uid, // userId
-                user.displayName || user.email?.split("@")[0] || "Anonymous", // userName
+                user.displayName, // userName
                 content.trim(),
-                undefined, // imageUri (optional)
-                user.photoURL || undefined
+                undefined // imageUri (optional)
             );
 
             Alert.alert("Success", "Post created successfully!", [

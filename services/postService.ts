@@ -18,7 +18,7 @@ const postService = {
     async createUserProfile(
         userId: string,
         email: string,
-        displayName: string | null
+        displayName: string
     ) {
         try {
             const userRef = doc(db, "users", userId);
@@ -41,7 +41,7 @@ const postService = {
     // Create a new post with Cloudinary image
     async createPost(
         userId: string,
-        userName: string,
+        displayName: string,
         content: string,
         imageUri?: string,
         userPhoto?: string
@@ -69,7 +69,7 @@ const postService = {
             const postsRef = collection(db, "posts");
             const newPost = await addDoc(postsRef, {
                 userId,
-                userName,
+                displayName,
                 userPhoto: userPhoto || null,
                 content,
                 imageUrl,

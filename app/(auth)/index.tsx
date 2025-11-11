@@ -8,6 +8,7 @@ const index = () => {
     const { login, signup } = useAuth();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [displayName, setDisplayName] = useState("");
 
     const signIn = async () => {
         const response = await login(email, password);
@@ -23,9 +24,9 @@ const index = () => {
     };
 
     const signUp = async () => {
-        const response = await signup(email, password);
+        const response = await signup(email, password, displayName);
 
-        if (response.user) {
+        if (response.success) {
             alert("sign up successful");
             router.replace("/(tabs)");
             return;
@@ -49,6 +50,12 @@ const index = () => {
                 value={password}
                 onChangeText={setPassword}
                 secureTextEntry
+            />
+            <TextInput
+                style={styles.textInput}
+                placeholder="set your userName"
+                value={displayName}
+                onChangeText={setDisplayName}
             />
             <TouchableOpacity style={styles.button} onPress={signIn}>
                 <Text style={styles.text}>Login</Text>

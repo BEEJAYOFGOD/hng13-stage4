@@ -22,18 +22,6 @@ const index = () => {
         alert(response.error);
     };
 
-    const signUp = async () => {
-        const response = await signup(email, password);
-
-        if (response.user) {
-            alert("sign up successful");
-            router.replace("/(tabs)");
-            return;
-        }
-
-        alert("Sign in failed: " + response.error);
-    };
-
     return (
         <SafeAreaView style={styles.container}>
             <Text style={styles.title}>Login</Text>
@@ -52,9 +40,6 @@ const index = () => {
             />
             <TouchableOpacity style={styles.button} onPress={signIn}>
                 <Text style={styles.text}>Login</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.button} onPress={signUp}>
-                <Text style={styles.text}>Make Account</Text>
             </TouchableOpacity>
         </SafeAreaView>
     );
