@@ -8,6 +8,7 @@ import {
     updateProfile,
 } from "firebase/auth";
 import postService from "./postService";
+
 function handleFirebaseError(err: unknown): string {
     if (err instanceof FirebaseError) {
         // You can customize messages based on error codes

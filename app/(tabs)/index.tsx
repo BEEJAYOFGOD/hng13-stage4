@@ -1,13 +1,10 @@
 import PostitImage from "@/assets/images/post_it.png";
-import {
-    ActivityIndicator,
-    FlatList,
-    Image,
-    StyleSheet,
-    TouchableOpacity,
-} from "react-native";
+import { FlatList, Image, StyleSheet, TouchableOpacity } from "react-native";
 
+import PostComponent from "@/components/PostComponent";
 import { Text, View } from "@/components/Themed";
+import ErrorComponent from "@/components/ui/ErrorComponent";
+import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import { db } from "@/firebaseconfig";
 import { Post } from "@/types/post";
 import { router } from "expo-router";
@@ -18,6 +15,7 @@ export default function TabOneScreen() {
     const [posts, setPosts] = useState<Post[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [retryCount, setRetryCount] = useState(0);
 
     useEffect(() => {
         // Set up real-time listener for posts
@@ -46,10 +44,14 @@ export default function TabOneScreen() {
 
         // Cleanup listener on unmount
         return () => unsubscribe();
-    }, []);
+    }, [retryCount]);
 
     const handleCreatePost = () => {
         router.push("/create");
+    };
+
+    const handleRetry = () => {
+        setRetryCount((prev) => prev + 1);
     };
 
     const renderEmptyState = () => (
@@ -68,49 +70,19 @@ export default function TabOneScreen() {
         </View>
     );
 
-    const renderPost = ({ item }: { item: Post }) => (
-        <TouchableOpacity style={styles.postCard}>
-            <View style={styles.postHeader}>
-                <Text style={styles.authorName}>
-                    {item.displayName || "Anonymous"}
-                </Text>
-                <Text style={styles.timestamp}>
-                    {item.createdAt?.toDate?.()?.toLocaleDateString() ||
-                        "Just now"}
-                </Text>
-            </View>
-            <Text style={styles.postContent}>{item.content}</Text>
-        </TouchableOpacity>
-    );
-
     if (loading) {
-        return (
-            <View style={styles.centerContainer}>
-                <ActivityIndicator size="large" color="#2f95dc" />
-                <Text style={styles.loadingText}>Loading posts...</Text>
-            </View>
-        );
+        return <LoadingSpinner />;
     }
 
     if (error) {
-        return (
-            <View style={styles.centerContainer}>
-                <Text style={styles.errorText}>{error}</Text>
-                <TouchableOpacity
-                    style={styles.retryButton}
-                    onPress={() => setLoading(true)}
-                >
-                    <Text style={styles.buttonText}>Retry</Text>
-                </TouchableOpacity>
-            </View>
-        );
+        return <ErrorComponent error={error} retryFunc={handleRetry} />;
     }
 
     return (
         <View style={styles.container}>
             <FlatList
                 data={posts}
-                renderItem={renderPost}
+                renderItem={PostComponent}
                 keyExtractor={(item) => item.id}
                 contentContainerStyle={
                     posts.length === 0 ? styles.emptyList : styles.listContent
@@ -165,17 +137,7 @@ const styles = StyleSheet.create({
         fontWeight: "700",
         marginBottom: 20,
     },
-    loadingText: {
-        marginTop: 12,
-        fontSize: 16,
-        color: "#726f6f",
-    },
-    errorText: {
-        fontSize: 16,
-        color: "#ff3b30",
-        marginBottom: 20,
-        textAlign: "center",
-    },
+
     createButton: {
         backgroundColor: "#2f95dc",
         paddingHorizontal: 24,
@@ -193,46 +155,5 @@ const styles = StyleSheet.create({
         color: "#fff",
         fontSize: 16,
         fontWeight: "600",
-    },
-    postCard: {
-        backgroundColor: "#fff",
-        borderRadius: 12,
-        padding: 16,
-        marginBottom: 12,
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
-        elevation: 3,
-    },
-    postHeader: {
-        flexDirection: "row",
-        justifyContent: "space-between",
-        alignItems: "center",
-        marginBottom: 12,
-    },
-    authorName: {
-        fontSize: 16,
-        fontWeight: "600",
-        color: "#333",
-    },
-    timestamp: {
-        fontSize: 12,
-        color: "#999",
-    },
-    postContent: {
-        fontSize: 15,
-        color: "#333",
-        lineHeight: 22,
-    },
-    postFooter: {
-        marginTop: 12,
-        paddingTop: 12,
-        borderTopWidth: 1,
-        borderTopColor: "#f0f0f0",
-    },
-    likes: {
-        fontSize: 14,
-        color: "#666",
     },
 });
