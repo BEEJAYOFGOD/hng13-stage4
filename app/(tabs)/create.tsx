@@ -36,7 +36,7 @@ export default function Create() {
 
             await postService.createPost(
                 user.uid, // userId
-                user.displayName, // userName
+                user.displayName,
                 content.trim(),
                 undefined // imageUri (optional)
             );

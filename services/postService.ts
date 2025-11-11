@@ -26,7 +26,6 @@ const postService = {
                 uid: userId,
                 email,
                 displayName,
-                photoURL: null,
                 bio: "",
                 createdAt: serverTimestamp(),
             });
@@ -67,6 +66,11 @@ const postService = {
 
             // Create post document in Firestore
             const postsRef = collection(db, "posts");
+
+
+            console.log(displayName, 'display')
+
+
             const newPost = await addDoc(postsRef, {
                 userId,
                 displayName,

@@ -9,9 +9,9 @@ import {
 } from "react";
 
 // Define types for user and context
-interface User {
+export interface User {
     uid: string;
-    email: string | null;
+    email: string;
     displayName: string;
 }
 
@@ -30,6 +30,7 @@ interface AuthContextType {
         displayName: string
     ) => Promise<AuthResponse>;
     logOut: () => Promise<void>;
+    setUser: (user: User) => void;
 }
 
 // Create context with proper typing
@@ -54,9 +55,18 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
                 "Auth state changed:",
                 firebaseUser?.email || "No user"
             );
-            console.log(firebaseUser, "fbase");
-            setUser(firebaseUser);
-            console.log("user called");
+
+            if (firebaseUser) {
+                const simplifiedUser: User = {
+                    uid: firebaseUser.uid,
+                    email: firebaseUser.email || "",
+                    displayName: firebaseUser.displayName || "",
+                };
+                setUser(simplifiedUser);
+            } else {
+                setUser(null);
+            }
+
             setLoading(false);
         });
 
@@ -64,7 +74,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
             console.log("Cleaning up auth listener");
             unsubscribe();
         };
-    });
+    }, []);
 
     const login = async (
         email: string,
@@ -86,7 +96,12 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         password: string,
         displayName: string
     ): Promise<AuthResponse> => {
-        const response = await authService.signup(email, password, displayName);
+        const response = await authService.signup(
+            email,
+            password,
+            displayName,
+            setUser
+        );
 
         if (response?.error) {
             return response;
@@ -100,7 +115,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     };
 
     return (
-        <AuthContext.Provider value={{ user, login, logOut, signup, loading }}>
+        <AuthContext.Provider
+            value={{ user, login, logOut, signup, loading, setUser }}
+        >
             {children}
         </AuthContext.Provider>
     );

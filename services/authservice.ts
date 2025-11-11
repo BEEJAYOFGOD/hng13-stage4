@@ -1,12 +1,13 @@
+import { User } from "@/context/authcontext";
 import { auth } from "@/firebaseconfig";
 import { FirebaseError } from "firebase/app";
 import {
     createUserWithEmailAndPassword,
     signInWithEmailAndPassword,
     signOut,
+    updateProfile,
 } from "firebase/auth";
 import postService from "./postService";
-
 function handleFirebaseError(err: unknown): string {
     if (err instanceof FirebaseError) {
         // You can customize messages based on error codes
@@ -31,7 +32,12 @@ function handleFirebaseError(err: unknown): string {
 
 const authService = {
     // Register a user
-    async signup(email: string, password: string, displayName: string) {
+    async signup(
+        email: string,
+        password: string,
+        displayName: string,
+        setUser: (user: User) => void
+    ) {
         try {
             const userCredential = await createUserWithEmailAndPassword(
                 auth,
@@ -40,6 +46,19 @@ const authService = {
             );
 
             const { uid } = userCredential.user;
+            await updateProfile(userCredential.user, {
+                displayName: displayName,
+            });
+
+            const updatedUser = {
+                uid: userCredential.user.uid,
+                email: userCredential.user.email || "",
+                displayName,
+            };
+
+            setUser(updatedUser);
+
+            const user = auth.currentUser;
 
             await postService.createUserProfile(uid, email, displayName);
             return {
