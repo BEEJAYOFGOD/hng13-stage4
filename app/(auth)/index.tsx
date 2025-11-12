@@ -28,6 +28,7 @@ const index = () => {
     const [errors, setErrors] = useState<SignupError>({});
     const [touched, setTouched] = useState<SignupError>({});
     const [loading, setLoading] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
 
     const validateEmail = (email: string): boolean => {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -171,30 +172,39 @@ const index = () => {
                     </View>
 
                     <View style={styles.inputContainer}>
-                        <TextInput
-                            style={[
-                                styles.textInput,
-                                touched.password &&
-                                    errors.password &&
-                                    styles.inputError,
-                            ]}
-                            placeholder="Password"
-                            value={password}
-                            onChangeText={(text) => {
-                                setPassword(text);
-                                if (touched.password && errors.password) {
-                                    setErrors({
-                                        ...errors,
-                                        password: undefined,
-                                    });
-                                }
-                            }}
-                            onBlur={() => handleBlur("password")}
-                            secureTextEntry
-                            autoCapitalize="none"
-                            autoComplete="password-new"
-                            editable={!loading}
-                        />
+                        <View style={styles.passwordContainer}>
+                            <TextInput
+                                style={[
+                                    styles.textInput,
+                                    touched.password &&
+                                        errors.password &&
+                                        styles.inputError,
+                                ]}
+                                placeholder="Password"
+                                value={password}
+                                onChangeText={(text) => {
+                                    setPassword(text);
+                                    if (touched.password && errors.password) {
+                                        setErrors({
+                                            ...errors,
+                                            password: undefined,
+                                        });
+                                    }
+                                }}
+                                onBlur={() => handleBlur("password")}
+                                secureTextEntry={!showPassword}
+                                autoCapitalize="none"
+                                autoComplete="password-new"
+                                editable={!loading}
+                            />
+                            <TouchableOpacity
+                                onPress={() => setShowPassword(!showPassword)}
+                                style={styles.eyeIcon}
+                            >
+                                <Text>{showPassword ? "👁️" : "👁️‍🗨️"}</Text>
+                            </TouchableOpacity>
+                        </View>
+
                         {touched.password && errors.password && (
                             <Text style={styles.errorText}>
                                 {errors.password}
@@ -308,6 +318,15 @@ const styles = StyleSheet.create({
         paddingHorizontal: 20,
         fontSize: 16,
         color: "#3C4858",
+    },
+    passwordContainer: {
+        position: "relative",
+    },
+    eyeIcon: {
+        position: "absolute",
+        right: 12,
+        top: 16,
+        fontSize: 18,
     },
     inputError: {
         borderColor: "#FF3B30",
