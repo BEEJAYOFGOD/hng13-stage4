@@ -207,7 +207,7 @@ const index = () => {
                         disabled={loading}
                     >
                         <Text style={styles.linkText}>
-                            DOn't have an account?
+                            Don't have an account?
                             <Text style={styles.linkBold}> Sign up</Text>
                         </Text>
                     </TouchableOpacity>
