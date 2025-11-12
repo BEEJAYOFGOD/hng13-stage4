@@ -1,6 +1,5 @@
-// Your Cloudinary credentials (get from https://console.cloudinary.com)
-const CLOUDINARY_CLOUD_NAME = "your_cloud_name"; // Replace with yours
-const CLOUDINARY_UPLOAD_PRESET = "your_upload_preset"; // Create this in Cloudinary dashboard
+const CLOUDINARY_CLOUD_NAME = "dvieev0ag"; // Replace with yours
+const CLOUDINARY_UPLOAD_PRESET = "framez"; // Create this in Cloudinary dashboard
 
 const cloudinaryService = {
     /**

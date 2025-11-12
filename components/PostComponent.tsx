@@ -1,17 +1,36 @@
 import { Post } from "@/types/post";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 const PostComponent = ({ item }: { item: Post }) => (
     <TouchableOpacity style={styles.postCard}>
         <View style={styles.postHeader}>
-            <Text style={styles.authorName}>
-                {item.displayName || "Anonymous"}
-            </Text>
-            <Text style={styles.timestamp}>
-                {item.createdAt?.toDate?.()?.toLocaleDateString() || "Just now"}
-            </Text>
+            <View style={styles.authorInfo}>
+                <View style={styles.avatar}>
+                    <Text style={styles.avatarText}>
+                        {item.displayName?.[0]?.toUpperCase() || "A"}
+                    </Text>
+                </View>
+                <View>
+                    <Text style={styles.authorName}>
+                        {item.displayName || "Anonymous"}
+                    </Text>
+                    <Text style={styles.timestamp}>
+                        {item.createdAt?.toDate?.()?.toLocaleDateString() ||
+                            "Just now"}
+                    </Text>
+                </View>
+            </View>
         </View>
-        <Text style={styles.postContent}>{item.content}</Text>
+
+        {item.content && <Text style={styles.postContent}>{item.content}</Text>}
+
+        {item.imageUrl && (
+            <Image
+                source={{ uri: item.imageUrl }}
+                style={styles.postImage}
+                resizeMode="cover"
+            />
+        )}
     </TouchableOpacity>
 );
 
@@ -22,7 +41,8 @@ const styles = StyleSheet.create({
         backgroundColor: "#fff",
         borderRadius: 12,
         padding: 16,
-        marginBottom: 12,
+        marginHorizontal: 16,
+        marginVertical: 8,
         shadowColor: "#000",
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.1,
@@ -30,33 +50,46 @@ const styles = StyleSheet.create({
         elevation: 3,
     },
     postHeader: {
-        flexDirection: "row",
-        justifyContent: "space-between",
-        alignItems: "center",
         marginBottom: 12,
+    },
+    authorInfo: {
+        flexDirection: "row",
+        alignItems: "center",
+    },
+    avatar: {
+        width: 40,
+        height: 40,
+        borderRadius: 20,
+        backgroundColor: "#007AFF",
+        justifyContent: "center",
+        alignItems: "center",
+        marginRight: 12,
+    },
+    avatarText: {
+        color: "#fff",
+        fontSize: 18,
+        fontWeight: "600",
     },
     authorName: {
         fontSize: 16,
         fontWeight: "600",
-        color: "#333",
+        color: "#1a1a1a",
+        marginBottom: 2,
     },
     timestamp: {
         fontSize: 12,
-        color: "#999",
+        color: "#666",
     },
     postContent: {
         fontSize: 15,
-        color: "#333",
         lineHeight: 22,
+        color: "#333",
+        marginBottom: 12,
     },
-    postFooter: {
-        marginTop: 12,
-        paddingTop: 12,
-        borderTopWidth: 1,
-        borderTopColor: "#f0f0f0",
-    },
-    likes: {
-        fontSize: 14,
-        color: "#666",
+    postImage: {
+        width: "100%",
+        height: 300,
+        borderRadius: 8,
+        backgroundColor: "#f0f0f0",
     },
 });

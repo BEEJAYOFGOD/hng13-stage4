@@ -4,7 +4,7 @@ export interface Post {
     id: string;
     userId: string;
     displayName: string;
-    content: string;
+    content?: string;
     imageUrl?: string;
     createdAt: Timestamp;
 }
