@@ -78,17 +78,49 @@ export default function Profile() {
     return (
         <View style={styles.container}>
             <View style={styles.userInfo}>
-
                 <View style={styles.avatar}>
                     <Text style={styles.avatarText}>
                         {user?.displayName[0]}
                     </Text>
                 </View>
+                <View
+                    style={{
+                        flexDirection: "column",
+                        justifyContent: "center",
+                        alignItems: "center",
+                    }}
+                >
+                    <Text
+                        style={{
+                            fontSize: 30,
+                            fontWeight: 300,
+                            color: "#2f95dc",
+                        }}
+                    >
+                        {userPosts.length}
+                    </Text>
+                    <Text
+                        style={{
+                            fontSize: 30,
+                            fontWeight: 300,
+                            color: "#2f95dc",
+                        }}
+                    >
+                        Posts
+                    </Text>
+                </View>
                 <View>
-                    <MaterialIcons name="logout" size={24} color="#2f95dcss" />
+                    <MaterialIcons
+                        onPress={() => logOut()}
+                        name="logout"
+                        size={24}
+                        color="#2f95dc"
+                    />
                 </View>
             </View>
+
             <Text style={styles.displayName}>@{user?.displayName}</Text>
+            <Text style={styles.email}>{user?.email}</Text>
             <View style={styles.postContainer}>
                 <FlatList
                     data={userPosts}
@@ -110,15 +142,16 @@ export default function Profile() {
 }
 
 const styles = StyleSheet.create({
-    userInfo:{
-        flexDirection: 'row',
-        justifyContent: 'center',
-        alignItems: 'center'
+    userInfo: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "center",
+        borderBottomColor: "#ccc",
+        borderBottomWidth: 2,
+        paddingHorizontal: 15,
     },
     postContainer: {
-        // width: 100,
-        // borderWidth: 40,
-        // borderColor: "red",
+        flex: 1,
     },
     avatar: {
         width: 80,
@@ -134,15 +167,20 @@ const styles = StyleSheet.create({
         fontSize: 30,
         fontWeight: "bold",
     },
+
     displayName: {
-        marginBottom: 12,
+        marginTop: 15,
+        marginLeft: 15,
+        fontSize: 16,
+    },
+    email: {
+        marginLeft: 15,
+
+        fontSize: 16,
     },
     container: {
         flex: 1,
-        // alignItems: "center",
-        // justifyContent: "center",
         paddingTop: 40,
-        padding: 20,
     },
     title: {
         fontSize: 20,
@@ -157,7 +195,7 @@ const styles = StyleSheet.create({
         padding: 20,
     },
     emptyList: {
-        flexGrow: 1,
+        flex: 1,
     },
     listContent: {
         // padding: 16,
