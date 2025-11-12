@@ -1,9 +1,11 @@
+import framez from "@/assets/images/Framez.png";
 import { useAuth } from "@/context/authcontext";
 import { router } from "expo-router";
 import { useState } from "react";
 import {
     ActivityIndicator,
     Alert,
+    Image,
     KeyboardAvoidingView,
     Platform,
     ScrollView,
@@ -120,6 +122,7 @@ const index = () => {
                     contentContainerStyle={styles.scrollContent}
                     keyboardShouldPersistTaps="handled"
                 >
+                    <Image source={framez} style={{ width: 80, height: 80 }} />
                     <Text style={styles.title}>Log in</Text>
                     <Text style={styles.subtitle}>Log in your account</Text>
 
