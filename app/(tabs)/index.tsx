@@ -68,7 +68,7 @@ export default function TabOneScreen() {
                 renderItem={PostComponent}
                 keyExtractor={(item) => item.id}
                 contentContainerStyle={
-                    posts.length === 0 ? styles.emptyList : styles.listContent
+                    posts.length === 0 ? styles.emptyList : null
                 }
                 ListEmptyComponent={
                     <EmptyPostState handleCreatePost={handleCreatePost} />
@@ -85,7 +85,6 @@ const styles = StyleSheet.create({
         backgroundColor: "#f5f5f5",
         paddingTop: 45,
     },
-
     emptyList: {
         flexGrow: 1,
     },

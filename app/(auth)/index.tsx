@@ -1,122 +1,355 @@
 import { useAuth } from "@/context/authcontext";
 import { router } from "expo-router";
 import React, { useState } from "react";
-import { StyleSheet, Text, TextInput, TouchableOpacity } from "react-native";
+import {
+    ActivityIndicator,
+    KeyboardAvoidingView,
+    Platform,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+export interface SignupError {
+    password?: string | boolean;
+    displayName?: string | boolean;
+    email?: string | boolean;
+}
+
 const index = () => {
-    const { login, signup } = useAuth();
+    const { signup } = useAuth();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [displayName, setDisplayName] = useState("");
+    const [errors, setErrors] = useState<SignupError>({});
+    const [touched, setTouched] = useState<SignupError>({});
+    const [loading, setLoading] = useState(false);
 
-    const signIn = async () => {
-        const response = await login(email, password);
-        console.log(response);
+    const validateEmail = (email: string): boolean => {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailRegex.test(email.trim());
+    };
 
-        if (response.success) {
-            alert("log in successful");
-            router.replace("/(tabs)");
-            return;
+    const validateForm = (): boolean => {
+        const newErrors: SignupError = {};
+
+        if (!email.trim()) {
+            newErrors.email = "Email is required";
+        } else if (!validateEmail(email)) {
+            newErrors.email = "Please enter a valid email";
         }
 
-        alert(response.error);
+        if (!password.trim()) {
+            newErrors.password = "Password is required";
+        } else if (password.length < 6) {
+            newErrors.password = "Password must be at least 6 characters";
+        }
+
+        if (!displayName.trim()) {
+            newErrors.displayName = "Username is required";
+        } else if (displayName.trim().length < 3) {
+            newErrors.displayName = "Username must be at least 3 characters";
+        }
+
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
+    };
+
+    const handleBlur = (field: keyof SignupError) => {
+        setTouched({ ...touched, [field]: true });
+
+        // Validate individual field on blur
+        const newErrors = { ...errors };
+
+        if (field === "email") {
+            if (!email.trim()) {
+                newErrors.email = "Email is required";
+            } else if (!validateEmail(email)) {
+                newErrors.email = "Please enter a valid email";
+            } else {
+                delete newErrors.email;
+            }
+        } else if (field === "password") {
+            if (!password.trim()) {
+                newErrors.password = "Password is required";
+            } else if (password.length < 6) {
+                newErrors.password = "Password must be at least 6 characters";
+            } else {
+                delete newErrors.password;
+            }
+        } else if (field === "displayName") {
+            if (!displayName.trim()) {
+                newErrors.displayName = "Username is required";
+            } else if (displayName.trim().length < 3) {
+                newErrors.displayName =
+                    "Username must be at least 3 characters";
+            } else {
+                delete newErrors.displayName;
+            }
+        }
+
+        setErrors(newErrors);
     };
 
     const signUp = async () => {
-        const response = await signup(email, password, displayName);
+        // Mark all fields as touched
+        setTouched({ email: true, password: true, displayName: true });
 
-        if (response.success) {
-            alert("sign up successful");
-            router.replace("/(tabs)");
+        if (!validateForm()) {
             return;
         }
 
-        alert("Sign in failed: " + response.error);
+        setLoading(true);
+
+        try {
+            const response = await signup(
+                email.trim(),
+                password,
+                displayName.trim()
+            );
+
+            if (response.success) {
+                router.replace("/(tabs)");
+            } else {
+                // Show specific error in the appropriate field
+                if (response.error?.includes("email")) {
+                    setErrors({ email: response.error });
+                } else {
+                    setErrors({ password: response.error });
+                }
+            }
+        } catch (err) {
+            setErrors({ password: "An unexpected error occurred" });
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
         <SafeAreaView style={styles.container}>
-            <Text style={styles.title}>Login</Text>
-            <TextInput
-                style={styles.textInput}
-                placeholder="email"
-                value={email}
-                onChangeText={setEmail}
-            />
-            <TextInput
-                style={styles.textInput}
-                placeholder="password"
-                value={password}
-                onChangeText={setPassword}
-                secureTextEntry
-            />
-            <TextInput
-                style={styles.textInput}
-                placeholder="set your userName"
-                value={displayName}
-                onChangeText={setDisplayName}
-            />
-            <TouchableOpacity style={styles.button} onPress={signIn}>
-                <Text style={styles.text}>Login</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.button} onPress={signUp}>
-                <Text style={styles.text}>Make Account</Text>
-            </TouchableOpacity>
+            <KeyboardAvoidingView
+                behavior={Platform.OS === "ios" ? "padding" : "height"}
+                style={styles.keyboardView}
+            >
+                <ScrollView
+                    contentContainerStyle={styles.scrollContent}
+                    keyboardShouldPersistTaps="handled"
+                >
+                    <Text style={styles.title}>Create Account</Text>
+                    <Text style={styles.subtitle}>Sign up to get started</Text>
+
+                    <View style={styles.inputContainer}>
+                        <TextInput
+                            style={[
+                                styles.textInput,
+                                touched.email &&
+                                    errors.email &&
+                                    styles.inputError,
+                            ]}
+                            placeholder="Email"
+                            value={email}
+                            onChangeText={(text) => {
+                                setEmail(text);
+                                if (touched.email && errors.email) {
+                                    setErrors({ ...errors, email: undefined });
+                                }
+                            }}
+                            onBlur={() => handleBlur("email")}
+                            keyboardType="email-address"
+                            autoCapitalize="none"
+                            autoComplete="email"
+                            autoCorrect={false}
+                            editable={!loading}
+                        />
+                        {touched.email && errors.email && (
+                            <Text style={styles.errorText}>{errors.email}</Text>
+                        )}
+                    </View>
+
+                    <View style={styles.inputContainer}>
+                        <TextInput
+                            style={[
+                                styles.textInput,
+                                touched.password &&
+                                    errors.password &&
+                                    styles.inputError,
+                            ]}
+                            placeholder="Password"
+                            value={password}
+                            onChangeText={(text) => {
+                                setPassword(text);
+                                if (touched.password && errors.password) {
+                                    setErrors({
+                                        ...errors,
+                                        password: undefined,
+                                    });
+                                }
+                            }}
+                            onBlur={() => handleBlur("password")}
+                            secureTextEntry
+                            autoCapitalize="none"
+                            autoComplete="password-new"
+                            editable={!loading}
+                        />
+                        {touched.password && errors.password && (
+                            <Text style={styles.errorText}>
+                                {errors.password}
+                            </Text>
+                        )}
+                    </View>
+
+                    <View style={styles.inputContainer}>
+                        <TextInput
+                            style={[
+                                styles.textInput,
+                                touched.displayName &&
+                                    errors.displayName &&
+                                    styles.inputError,
+                            ]}
+                            placeholder="Username"
+                            value={displayName}
+                            onChangeText={(text) => {
+                                setDisplayName(text);
+                                if (touched.displayName && errors.displayName) {
+                                    setErrors({
+                                        ...errors,
+                                        displayName: undefined,
+                                    });
+                                }
+                            }}
+                            onBlur={() => handleBlur("displayName")}
+                            autoCapitalize="none"
+                            autoComplete="username"
+                            autoCorrect={false}
+                            editable={!loading}
+                        />
+                        {touched.displayName && errors.displayName && (
+                            <Text style={styles.errorText}>
+                                {errors.displayName}
+                            </Text>
+                        )}
+                    </View>
+
+                    <TouchableOpacity
+                        style={[
+                            styles.button,
+                            loading && styles.buttonDisabled,
+                        ]}
+                        onPress={signUp}
+                        disabled={loading}
+                    >
+                        {loading ? (
+                            <ActivityIndicator color="#FFFFFF" />
+                        ) : (
+                            <Text style={styles.buttonText}>
+                                Create Account
+                            </Text>
+                        )}
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                        onPress={() => router.push("/login")}
+                        disabled={loading}
+                    >
+                        <Text style={styles.linkText}>
+                            Already have an account?{" "}
+                            <Text style={styles.linkBold}>Log in</Text>
+                        </Text>
+                    </TouchableOpacity>
+                </ScrollView>
+            </KeyboardAvoidingView>
         </SafeAreaView>
     );
 };
-
 
 export default index;
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
+        backgroundColor: "#FAFAFA",
+    },
+    keyboardView: {
+        flex: 1,
+    },
+    scrollContent: {
+        flexGrow: 1,
         justifyContent: "center",
         alignItems: "center",
-        backgroundColor: "#FAFAFA", // A softer white for a modern, minimalist background
+        paddingVertical: 40,
+        paddingHorizontal: 20,
     },
     title: {
-        fontSize: 28, // A bit larger for a more striking appearance
-        fontWeight: "800", // Extra bold for emphasis
-        marginBottom: 40, // Increased space for a more airy, open feel
-        color: "#1A237E", // A deep indigo for a sophisticated, modern look
+        fontSize: 32,
+        fontWeight: "800",
+        marginBottom: 8,
+        color: "#2f95dc",
+    },
+    subtitle: {
+        fontSize: 16,
+        color: "#666",
+        marginBottom: 40,
+    },
+    inputContainer: {
+        width: "100%",
+        marginBottom: 16,
     },
     textInput: {
-        height: 50, // Standard height for elegance and simplicity
-        width: "90%", // Full width for a more expansive feel
-        backgroundColor: "#FFFFFF", // Pure white for contrast against the container
-        borderColor: "#E8EAF6", // A very light indigo border for subtle contrast
+        height: 50,
+        width: "100%",
+        backgroundColor: "#FFFFFF",
+        borderColor: "#E8EAF6",
         borderWidth: 2,
-        borderRadius: 15, // Softly rounded corners for a modern, friendly touch
-        marginVertical: 15,
-        paddingHorizontal: 25, // Generous padding for ease of text entry
-        fontSize: 16, // Comfortable reading size
-        color: "#3C4858", // A dark gray for readability with a hint of warmth
-        shadowColor: "#9E9E9E", // A medium gray shadow for depth
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.3,
-        shadowRadius: 4,
-        elevation: 4, // Slightly elevated for a subtle 3D effect
+        borderRadius: 12,
+        paddingHorizontal: 20,
+        fontSize: 16,
+        color: "#3C4858",
+    },
+    inputError: {
+        borderColor: "#FF3B30",
+        borderWidth: 2,
+    },
+    errorText: {
+        color: "#FF3B30",
+        fontSize: 12,
+        marginTop: 4,
+        marginLeft: 4,
     },
     button: {
-        width: "90%",
-        marginVertical: 15,
-        backgroundColor: "#5C6BC0", // A lighter indigo to complement the title color
-        padding: 20,
-        borderRadius: 15, // Matching rounded corners for consistency
+        width: "100%",
+        marginTop: 8,
+        marginBottom: 20,
+        backgroundColor: "#2f95dc",
+        padding: 16,
+        borderRadius: 12,
         alignItems: "center",
         justifyContent: "center",
-        shadowColor: "#5C6BC0", // Shadow color to match the button for a cohesive look
+        shadowColor: "#2f95dc",
         shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.4,
+        shadowOpacity: 0.3,
         shadowRadius: 5,
         elevation: 5,
     },
-    text: {
-        color: "#FFFFFF", // Maintained white for clear visibility
-        fontSize: 18, // Slightly larger for emphasis
-        fontWeight: "600", // Semi-bold for a balanced weight
+    buttonDisabled: {
+        backgroundColor: "#9FA8DA",
+        opacity: 0.6,
+    },
+    buttonText: {
+        color: "#FFFFFF",
+        fontSize: 18,
+        fontWeight: "600",
+    },
+    linkText: {
+        fontSize: 14,
+        color: "#666",
+        textAlign: "center",
+    },
+    linkBold: {
+        color: "#2f95dc",
+        fontWeight: "600",
     },
 });
