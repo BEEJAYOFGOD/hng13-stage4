@@ -120,6 +120,7 @@ export default function Create() {
                     },
                 },
             ]);
+             setLoading(false);
             return;
         }
 
