@@ -41,9 +41,8 @@ const postService = {
     async createPost(
         userId: string,
         displayName: string,
-        content: string,
-        imageUri?: string,
-        userPhoto?: string
+        content?: string,
+        imageUri?: string
     ) {
         try {
             let imageUrl = null;
@@ -67,14 +66,11 @@ const postService = {
             // Create post document in Firestore
             const postsRef = collection(db, "posts");
 
-
-            console.log(displayName, 'display')
-
+            console.log(displayName, "display");
 
             const newPost = await addDoc(postsRef, {
                 userId,
                 displayName,
-                userPhoto: userPhoto || null,
                 content,
                 imageUrl,
                 createdAt: serverTimestamp(),
