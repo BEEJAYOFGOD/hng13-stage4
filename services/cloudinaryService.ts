@@ -1,9 +1,9 @@
-const CLOUDINARY_CLOUD_NAME = "dvieev0ag"; // Replace with yours
-const CLOUDINARY_UPLOAD_PRESET = "framez"; // Create this in Cloudinary dashboard
+const CLOUDINARY_CLOUD_NAME = process.env.EXPO_PUBLIC_CLOUDINARY_CLOUD_NAME; // Replace with yours
+const CLOUDINARY_UPLOAD_PRESET =
+    process.env.EXPO_PUBLIC_CLOUDINARY_CLOUD_UPLOAD_PRESET; // Create this in Cloudinary dashboard
 
 const cloudinaryService = {
     /**
-     * Upload image to Cloudinary
      * @param imageUri - Local file URI from image picker
      * @returns Image URL from Cloudinary
      */
@@ -22,7 +22,7 @@ const cloudinaryService = {
             } as any);
 
             // Add upload preset (unsigned upload)
-            formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
+            formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET!);
 
             // Upload to Cloudinary
             const response = await fetch(

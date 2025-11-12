@@ -15,8 +15,13 @@ const PostComponent = ({ item }: { item: Post }) => (
                         {item.displayName || "Anonymous"}
                     </Text>
                     <Text style={styles.timestamp}>
-                        {item.createdAt?.toDate?.()?.toLocaleDateString() ||
-                            "Just now"}
+                        {item.createdAt?.toDate?.()
+                            ? `${item.createdAt
+                                  .toDate()
+                                  .toLocaleDateString()} at ${item.createdAt
+                                  .toDate()
+                                  .toLocaleTimeString()}`
+                            : "Just now"}
                     </Text>
                 </View>
             </View>

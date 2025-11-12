@@ -78,7 +78,7 @@ export default function Create() {
     };
 
     const handleCreatePost = async () => {
-        if (!content.trim()) {
+        if (!content.trim() && !image) {
             Alert.alert("Empty Post", "Please write something before posting!");
             return;
         }
@@ -87,26 +87,22 @@ export default function Create() {
             Alert.alert("Not Logged In", "Please log in to create a post");
             return;
         }
-        if (content.length < 5) {
+
+        if (content.length < 5 && !image) {
             Alert.alert("content is too short, make it at least 5 ");
-            return;
-        }
-
-        if (content.length && !image) {
-            Alert.alert(
-                "you can only post a content and/or image not content alone"
-            );
-
             return;
         }
 
         setLoading(true);
 
+        console.log("test", user);
+        console.log(image);
+
         const response = await postService.createPost(
             user.uid,
             user.displayName,
-            content.trim() || undefined,
-            image || undefined
+            content.trim() || null,
+            image || null
         );
 
         if (response.success) {
@@ -120,7 +116,7 @@ export default function Create() {
                     },
                 },
             ]);
-             setLoading(false);
+            setLoading(false);
             return;
         }
 
@@ -386,6 +382,7 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         gap: 12,
         marginBottom: 20,
+        backgroundColor: "#FFFFFF",
     },
     imagePickerButton: {
         flex: 1,

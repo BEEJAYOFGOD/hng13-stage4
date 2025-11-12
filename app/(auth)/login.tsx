@@ -132,6 +132,7 @@ const index = () => {
                                     styles.inputError,
                             ]}
                             placeholder="Email"
+                            placeholderTextColor="#A0A0A0"
                             value={email}
                             onChangeText={(text) => {
                                 setEmail(text);
@@ -161,6 +162,7 @@ const index = () => {
                                         styles.inputError,
                                 ]}
                                 placeholder="Password"
+                                placeholderTextColor="#A0A0A0"
                                 value={password}
                                 onChangeText={(text) => {
                                     setPassword(text);

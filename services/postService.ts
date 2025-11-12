@@ -41,8 +41,8 @@ const postService = {
     async createPost(
         userId: string,
         displayName: string,
-        content?: string,
-        imageUri?: string
+        content: string | null,
+        imageUri: string | null
     ) {
         try {
             let imageUrl = null;
