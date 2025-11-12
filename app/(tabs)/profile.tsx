@@ -1,7 +1,6 @@
-import { StyleSheet } from "react-native";
+import { StyleSheet, TouchableOpacity } from "react-native";
 
 import PostComponent from "@/components/PostComponent";
-// import { Text, View } from "@/components/Themed";
 import EmptyPostState from "@/components/ui/EmptyPostState";
 import ErrorComponent from "@/components/ui/ErrorComponent";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
@@ -29,12 +28,11 @@ export default function Profile() {
     const router = useRouter();
 
     useEffect(() => {
-        // Set up real-time listener for posts
         const postsRef = collection(db, "posts");
         const userPostsQuery = query(
             postsRef,
             where("userId", "==", user?.uid),
-            orderBy("createdAt", "desc") // Most recent first
+            orderBy("createdAt", "desc")
         );
 
         const unsubscribe = onSnapshot(
@@ -55,7 +53,6 @@ export default function Profile() {
             }
         );
 
-        // Cleanup listener on unmount
         return () => unsubscribe();
     }, [retryCount]);
 
@@ -63,7 +60,7 @@ export default function Profile() {
         router.push("/create");
     };
 
-    const handleRety = () => {
+    const handleRetry = () => {
         setRetryCount((prev) => prev + 1);
     };
 
@@ -72,56 +69,97 @@ export default function Profile() {
     }
 
     if (error) {
-        return <ErrorComponent retryFunc={handleRety} error={error} />;
+        return <ErrorComponent retryFunc={handleRetry} error={error} />;
     }
+
+    const getInitials = (name: string) => {
+        return (
+            name
+                ?.split(" ")
+                .map((n) => n[0])
+                .join("")
+                .toUpperCase()
+                .slice(0, 2) || "U"
+        );
+    };
 
     return (
         <View style={styles.container}>
-            <View style={styles.userInfo}>
-                <View style={styles.avatar}>
-                    <Text style={styles.avatarText}>
-                        {user?.displayName[0]}
-                    </Text>
+            {/* Header Section */}
+            <View style={styles.header}>
+                {/* Avatar and Stats Row */}
+                <View style={styles.topRow}>
+                    <View style={styles.avatar}>
+                        <Text style={styles.avatarText}>
+                            {getInitials(user?.displayName || "User")}
+                        </Text>
+                    </View>
+
+                    <View style={styles.statsContainer}>
+                        <View style={styles.statItem}>
+                            <Text style={styles.statNumber}>
+                                {userPosts.length}
+                            </Text>
+                            <Text style={styles.statLabel}>Posts</Text>
+                        </View>
+                        <View style={styles.statItem}>
+                            <Text
+                                style={[styles.statNumber, { color: "grey" }]}
+                            >
+                                0
+                            </Text>
+                            <Text style={styles.statLabel}>Followers</Text>
+                        </View>
+                        <View style={styles.statItem}>
+                            <Text
+                                style={[styles.statNumber, { color: "grey" }]}
+                            >
+                                0
+                            </Text>
+                            <Text style={styles.statLabel}>Following</Text>
+                        </View>
+                    </View>
                 </View>
-                <View
-                    style={{
-                        flexDirection: "column",
-                        justifyContent: "center",
-                        alignItems: "center",
-                    }}
-                >
-                    <Text
-                        style={{
-                            fontSize: 30,
-                            fontWeight: 300,
-                            color: "#2f95dc",
-                        }}
-                    >
-                        {userPosts.length}
-                    </Text>
-                    <Text
-                        style={{
-                            fontSize: 30,
-                            fontWeight: 300,
-                            color: "#2f95dc",
-                        }}
-                    >
-                        Posts
-                    </Text>
+
+                {/* User Info */}
+                <View style={styles.userInfoSection}>
+                    <Text style={styles.displayName}>{user?.displayName}</Text>
+                    <Text style={styles.email}>{user?.email}</Text>
                 </View>
-                <View>
-                    <MaterialIcons
+
+                {/* Action Buttons */}
+                <View style={styles.actionButtons}>
+                    <TouchableOpacity
+                        style={styles.editButton}
+                        onPress={handleCreatePost}
+                    >
+                        <MaterialIcons name="add" size={20} color="#2f95dc" />
+                        <Text style={styles.editButtonText}>Create Post</Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                        style={styles.logoutButton}
                         onPress={() => logOut()}
-                        name="logout"
-                        size={24}
-                        color="#2f95dc"
-                    />
+                    >
+                        <MaterialIcons
+                            name="logout"
+                            size={20}
+                            color="#FF3B30"
+                        />
+                    </TouchableOpacity>
+                </View>
+
+                <View style={styles.userInfoSection}>
+                    <Text style={{ fontSize: 12, marginTop: 12 }}>
+                        subscribe to premium to see followers and following
+                    </Text>
                 </View>
             </View>
 
-            <Text style={styles.displayName}>@{user?.displayName}</Text>
-            <Text style={styles.email}>{user?.email}</Text>
-            <View style={styles.postContainer}>
+            {/* Posts Grid/List */}
+            <View style={styles.postsSection}>
+                <Text style={styles.sectionTitle}>My Posts</Text>
+
                 <FlatList
                     data={userPosts}
                     renderItem={PostComponent}
@@ -142,62 +180,117 @@ export default function Profile() {
 }
 
 const styles = StyleSheet.create({
-    userInfo: {
-        flexDirection: "row",
-        justifyContent: "space-between",
-        alignItems: "center",
-        borderBottomColor: "#ccc",
-        borderBottomWidth: 2,
-        paddingHorizontal: 15,
-    },
-    postContainer: {
+    container: {
         flex: 1,
+        backgroundColor: "#fff",
+    },
+    header: {
+        paddingHorizontal: 20,
+        paddingTop: 50,
+        paddingBottom: 20,
+        borderBottomWidth: 1,
+        borderBottomColor: "#e0e0e0",
+    },
+    topRow: {
+        flexDirection: "row",
+        alignItems: "center",
+        marginBottom: 16,
     },
     avatar: {
         width: 80,
         height: 80,
-        borderRadius: 80,
+        borderRadius: 40,
         backgroundColor: "#2f95dc",
         justifyContent: "center",
         alignItems: "center",
-        marginBottom: 10,
+        marginRight: 20,
     },
     avatarText: {
         color: "white",
-        fontSize: 30,
+        fontSize: 32,
         fontWeight: "bold",
     },
-
-    displayName: {
-        marginTop: 15,
-        marginLeft: 15,
-        fontSize: 16,
-    },
-    email: {
-        marginLeft: 15,
-
-        fontSize: 16,
-    },
-    container: {
+    statsContainer: {
         flex: 1,
-        paddingTop: 40,
+        flexDirection: "row",
+        justifyContent: "space-around",
     },
-    title: {
+    statItem: {
+        alignItems: "center",
+    },
+    statNumber: {
         fontSize: 20,
         fontWeight: "bold",
-        marginBottom: 16,
+        color: "#000",
     },
-
-    centerContainer: {
+    statLabel: {
+        fontSize: 14,
+        color: "#666",
+        marginTop: 4,
+    },
+    userInfoSection: {
+        // marginBottom: 16,
+    },
+    displayName: {
+        fontSize: 18,
+        fontWeight: "bold",
+        color: "#000",
+        marginBottom: 4,
+    },
+    email: {
+        fontSize: 14,
+        color: "#666",
+    },
+    actionButtons: {
+        flexDirection: "row",
+        gap: 12,
+    },
+    editButton: {
         flex: 1,
+        flexDirection: "row",
         alignItems: "center",
         justifyContent: "center",
-        padding: 20,
+        backgroundColor: "#f0f8ff",
+        paddingVertical: 10,
+        paddingHorizontal: 16,
+        borderRadius: 8,
+        borderWidth: 1,
+        borderColor: "#2f95dc",
+        gap: 6,
+    },
+    editButtonText: {
+        color: "#2f95dc",
+        fontSize: 15,
+        fontWeight: "600",
+    },
+    logoutButton: {
+        width: 48,
+        height: 48,
+        alignItems: "center",
+        justifyContent: "center",
+        backgroundColor: "#fff5f5",
+        borderRadius: 8,
+        borderWidth: 1,
+        borderColor: "#FF3B30",
+    },
+    postsSection: {
+        flex: 1,
+        backgroundColor: "#fafafa",
+    },
+    sectionTitle: {
+        fontSize: 16,
+        fontWeight: "600",
+        color: "#000",
+        paddingHorizontal: 20,
+        paddingVertical: 14,
+        backgroundColor: "#fff",
     },
     emptyList: {
         flex: 1,
     },
     listContent: {
-        // padding: 16,
+        marginTop: 10,
+        paddingHorizontal: 15,
+        paddingBottom: 20,
     },
 });
