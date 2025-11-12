@@ -3,6 +3,7 @@ import { router } from "expo-router";
 import React, { useState } from "react";
 import {
     ActivityIndicator,
+    Alert,
     KeyboardAvoidingView,
     Platform,
     ScrollView,
@@ -116,12 +117,8 @@ const index = () => {
             if (response.success) {
                 router.replace("/(tabs)");
             } else {
+                if (response.error) Alert.alert(response?.error);
                 // Show specific error in the appropriate field
-                if (response.error?.includes("email")) {
-                    setErrors({ email: response.error });
-                } else {
-                    setErrors({ password: response.error });
-                }
             }
         } catch (err) {
             setErrors({ password: "An unexpected error occurred" });
