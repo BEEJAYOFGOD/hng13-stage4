@@ -1,7 +1,15 @@
-const CLOUDINARY_CLOUD_NAME = process.env.EXPO_PUBLIC_CLOUDINARY_CLOUD_NAME; // Replace with yours
-const CLOUDINARY_UPLOAD_PRESET =
-    process.env.EXPO_PUBLIC_CLOUDINARY_CLOUD_UPLOAD_PRESET; // Create this in Cloudinary dashboard
+// const CLOUDINARY_CLOUD_NAME = "dvieev0ag"; // Replace with yours
+// const CLOUDINARY_UPLOAD_PRESET = "framez"; // Create this in Cloudinary dashboard
+// EXPO_PUBLIC_CLOUDINARY_CLOUD_NAME=dvieev0ag
+// EXPO_PUBLIC_CLOUDINARY_UPLOAD_PRESET=framez
 
+const CLOUDINARY_CLOUD_NAME = process.env.EXPO_PUBLIC_CLOUDINARY_CLOUD_NAME;
+const CLOUDINARY_UPLOAD_PRESET =
+    process.env.EXPO_PUBLIC_CLOUDINARY_UPLOAD_PRESET;
+
+if (!CLOUDINARY_CLOUD_NAME || !CLOUDINARY_UPLOAD_PRESET) {
+    throw new Error("Missing required Cloudinary environment variables");
+}
 const cloudinaryService = {
     /**
      * @param imageUri - Local file URI from image picker
@@ -22,7 +30,9 @@ const cloudinaryService = {
             } as any);
 
             // Add upload preset (unsigned upload)
-            formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET!);
+            formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
+            console.log(CLOUDINARY_CLOUD_NAME);
+            console.log(CLOUDINARY_UPLOAD_PRESET);
 
             // Upload to Cloudinary
             const response = await fetch(
@@ -37,6 +47,8 @@ const cloudinaryService = {
             );
 
             const data = await response.json();
+
+            console.log(data, "Cloudinary error");
 
             if (response.ok && data.secure_url) {
                 return {

@@ -1,4 +1,4 @@
-import { User } from "@/context/authcontext";
+import { AuthResponse, User } from "@/context/authcontext";
 import { auth } from "@/firebaseconfig";
 import { FirebaseError } from "firebase/app";
 import {
@@ -38,7 +38,7 @@ const authService = {
         password: string,
         displayName: string,
         setUser: (user: User) => void
-    ) {
+    ): Promise<AuthResponse> {
         try {
             const userCredential = await createUserWithEmailAndPassword(
                 auth,
@@ -47,6 +47,7 @@ const authService = {
             );
 
             const { uid } = userCredential.user;
+
             await updateProfile(userCredential.user, {
                 displayName: displayName,
             });
@@ -59,11 +60,8 @@ const authService = {
 
             setUser(updatedUser);
 
-            const user = auth.currentUser;
-
             await postService.createUserProfile(uid, email, displayName);
             return {
-                user: userCredential.user,
                 success: true,
             };
         } catch (error: any) {
@@ -72,7 +70,7 @@ const authService = {
     },
 
     // Login a user
-    async login(email: string, password: string) {
+    async login(email: string, password: string): Promise<AuthResponse> {
         try {
             const userCredential = await signInWithEmailAndPassword(
                 auth,
@@ -90,25 +88,8 @@ const authService = {
         }
     },
 
-    // Get current user
-    async getUser() {
-        try {
-            const user = auth.currentUser;
-
-            if (user) {
-                return {
-                    success: true,
-                    user,
-                };
-            }
-            // return null;
-        } catch (error) {
-            return { error: handleFirebaseError(error), success: false };
-        }
-    },
-
     // Logout user
-    async logOut() {
+    async logOut(): Promise<AuthResponse> {
         try {
             await signOut(auth);
 
@@ -118,16 +99,6 @@ const authService = {
         } catch (error: any) {
             return { error: handleFirebaseError(error), success: false };
         }
-    },
-
-    // Check if user is authenticated
-    isAuthenticated() {
-        return auth.currentUser !== null;
-    },
-
-    // Get auth state observer (for listening to auth changes)
-    onAuthStateChanged(callback: (user: any) => void) {
-        return auth.onAuthStateChanged(callback);
     },
 };
 

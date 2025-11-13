@@ -16,7 +16,8 @@ export interface User {
     displayName: string;
 }
 
-interface AuthResponse {
+
+export interface AuthResponse {
     success: boolean;
     error?: string;
 }
@@ -57,12 +58,14 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
                 firebaseUser?.email || "No user"
             );
 
+            // This was done to check if the userObject exist
             if (firebaseUser) {
                 const simplifiedUser: User = {
                     uid: firebaseUser.uid,
                     email: firebaseUser.email || "",
                     displayName: firebaseUser.displayName || "",
                 };
+
                 setUser(simplifiedUser);
             } else {
                 setUser(null);

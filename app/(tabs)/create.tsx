@@ -105,6 +105,8 @@ export default function Create() {
             image || null
         );
 
+        console.log(response, "create post error");
+
         if (response.success) {
             Alert.alert("Success", "Post created successfully!", [
                 {

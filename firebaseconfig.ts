@@ -15,6 +15,11 @@ const firebaseConfig = {
     appId: process.env.EXPO_PUBLIC_FIREBASE_APP_ID,
 };
 
+// Correct way in Expo SDK 49+
+
+// Also verify the value is actually loaded:
+console.log("API Key:", process.env.EXPO_PUBLIC_FIREBASE_API_KEY);
+
 // Initialize Firebase
 export const app = initializeApp(firebaseConfig);
 export const auth = initializeAuth(app, {
